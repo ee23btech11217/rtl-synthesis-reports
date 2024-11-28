@@ -256,13 +256,21 @@ def plot_barh(data, sfile, xlabel, ylabel, angle=None):
     plt.savefig(sfile)
     plt.clf()
 
+def gen_latex_code_figure(path, caption):
+    return f"""\\begin{{figure}}
+    \\centering
+    \\includegraphics[0.7\\linewidth]{{{path}}}
+    \\caption{{{caption}}}
+\\end{{figure}}
+"""
+
 def analyze_benchmark_reports(benchmark_name:str):
     fixed_bname = benchmark_name.replace('/', '_')
 
-    print(f"\nAnalysis for {benchmark_name} Benchmark:")
+    print(f"\\section{{Analysis for {benchmark_name} Benchmark}}")
     
     # 1. Comparison of area/timing/power for different library corners
-    print("\n\t1. Library Corners Comparison:")
+    print("\\subsection{Library Corners Comparison}")
     library_corners = list(naming_conv.keys())
     corner_results = {}
     
@@ -281,12 +289,16 @@ def analyze_benchmark_reports(benchmark_name:str):
         timing_plt.append((corner, timing))
         power_plt.append((corner, power))
 
-    plot_barh(area_plt, f'figs/{benchmark_name}/area.png', 'technology library', 'Area($\\mu m^2$)')
-    plot_barh(timing_plt, f'figs/{benchmark_name}/timing.png', 'technology library', 'Timing(ps)')
-    plot_barh(power_plt, f'figs/{benchmark_name}/power.png', 'technology library', 'Power(W)', 30)
+    plot_barh(area_plt, f'figs/corner/{benchmark_name}/area.png', 'technology library', 'Area($\\mu m^2$)')
+    plot_barh(timing_plt, f'figs/corner/{benchmark_name}/timing.png', 'technology library', 'Timing(ps)')
+    plot_barh(power_plt, f'figs/corner/{benchmark_name}/power.png', 'technology library', 'Power(W)', 30)
+
+    print(gen_latex_code_figure(f'figs/corner/{benchmark_name}/area.png', f'Area comparision for {benchmark}'))
+    print(gen_latex_code_figure(f'figs/corner/{benchmark_name}/timing.png', f'Area comparision for {benchmark}'))
+    print(gen_latex_code_figure(f'figs/corner/{benchmark_name}/power.png', f'Area comparision for {benchmark}'))
 
     # 2. Comparison of area/timing/power by frequency
-    print("\n\t2. Frequency Comparison:")
+    print("\\subsection{Frequency Comparison}")
     freq_groups = {
         '100MHz': [k for k, v in naming_conv.items() if '100MHz' in v],
         '400MHz': [k for k, v in naming_conv.items() if '400MHz' in v]
