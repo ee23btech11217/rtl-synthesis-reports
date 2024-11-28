@@ -112,4 +112,64 @@ def parse_reports(folder:str, config:str):
 
 parse_reports('cep/IIR', '1')
 
+def analyze_benchmark_reports(benchmark_name):
+    print(f"\nAnalysis for {benchmark_name} Benchmark:")
+    
+    # 1. Comparison of area/timing/power for different library corners
+    print("\n1. Library Corners Comparison:")
+    library_corners = list(naming_conv.keys())
+    corner_results = {}
+    
+    for corner in library_corners:
+        try:
+            result = parse_reports(f'{benchmark_name}', corner)
+            corner_results[naming_conv[corner]] = result[0]
+        except Exception as e:
+            print(f"Error processing corner {corner}: {e}")
+    
+    print("\nLibrary Corner Details (Total Area, Timing Info, Total Power):")
+    for corner, (area, timing, power) in corner_results.items():
+        print(f"{corner}: Area = {area:.2f}, Timing = {timing}, Power = {power:.6f}")
+    
+    # 2. Comparison of area/timing/power by frequency
+    print("\n2. Frequency Comparison:")
+    freq_groups = {
+        '100MHz': [k for k, v in naming_conv.items() if '100MHz' in v],
+        '400MHz': [k for k, v in naming_conv.items() if '400MHz' in v]
+    }
+    
+    freq_results = {}
+    for freq, corners in freq_groups.items():
+        freq_corner_results = []
+        for corner in corners:
+            try:
+                result = parse_reports(f'{benchmark_name}', corner)
+                freq_corner_results.append((naming_conv[corner], result[0]))
+            except Exception as e:
+                print(f"Error processing {freq} corner {corner}: {e}")
+        freq_results[freq] = freq_corner_results
+    
+    print("\nFrequency Group Details:")
+    for freq, corner_data in freq_results.items():
+        print(f"\n{freq} Group:")
+        for corner, (area, timing, power) in corner_data:
+            print(f"{corner}: Area = {area:.2f}, Timing = {timing}, Power = {power:.6f}")
+    
+    # 3 & 4. Identify most power-consuming and largest area sub-blocks
+    print("\n3 & 4. Sub-block Analysis:")
+    for corner in library_corners:
+        try:
+            result = parse_reports(f'{benchmark_name}', corner)
+            max_area_subblock = result[1][0]
+            max_power_subblock = result[1][1]
+            
+            print(f"\nCorner {naming_conv[corner]}:")
+            print(f"Highest Area Sub-block: {max_area_subblock[0]}, Area = {max_area_subblock[2]:.2f}")
+            print(f"Highest Power Sub-block: {max_power_subblock[0]}, Power = {max_power_subblock[1]:.2f}")
+        except Exception as e:
+            print(f"Error processing corner {corner}: {e}")
 
+# Benchmarks to analyze
+benchmarks = ['UART']
+for benchmark in benchmarks:
+    analyze_benchmark_reports(benchmark)
