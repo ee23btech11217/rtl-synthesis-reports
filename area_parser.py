@@ -244,10 +244,14 @@ def analyze_benchmark_reports(benchmark_name):
         except Exception as e:
             print(f"Error processing corner {corner}: {e}")
 
-def plot_barh(data, sfile):
+def plot_barh(data, sfile, xlabel, ylabel, angle=None):
     os.makedirs(os.path.dirname(sfile), exist_ok=True)
     data.sort(key=lambda tup: tup[1])
-    plt.barh([_[0] for _ in data], [_[1] for _ in data], color="green", edgecolor='green')
+    plt.barh([_[0] for _ in data], [_[1] for _ in data])
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    if angle:
+        plt.xticks(rotation=angle)
     plt.tight_layout()
     plt.savefig(sfile)
     plt.clf()
@@ -276,10 +280,10 @@ def analyze_benchmark_reports(benchmark_name:str):
         area_plt.append((corner, area))
         timing_plt.append((corner, timing))
         power_plt.append((corner, power))
-        
-    plot_barh(area_plt, f'figs/{benchmark_name}/area.png')
-    plot_barh(timing_plt, f'figs/{benchmark_name}/timing.png')
-    plot_barh(power_plt, f'figs/{benchmark_name}/power.png')
+
+    plot_barh(area_plt, f'figs/{benchmark_name}/area.png', 'technology library', 'Area($\\mu m^2$)')
+    plot_barh(timing_plt, f'figs/{benchmark_name}/timing.png', 'technology library', 'Timing(ps)')
+    plot_barh(power_plt, f'figs/{benchmark_name}/power.png', 'technology library', 'Power(W)', 30)
 
     # 2. Comparison of area/timing/power by frequency
     print("\n\t2. Frequency Comparison:")
