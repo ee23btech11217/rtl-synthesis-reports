@@ -112,6 +112,7 @@ def parse_reports(folder:str, config:str):
 
 parse_reports('cep/IIR', '1')
 
+
 def analyze_benchmark_reports(benchmark_name):
     print(f"\nAnalysis for {benchmark_name} Benchmark:")
     
