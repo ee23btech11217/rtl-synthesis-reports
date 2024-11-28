@@ -99,14 +99,17 @@ def parse_reports(folder:str, config:str):
     max_area = max(area_subblocks, key=lambda item: item[2])
     max_power = max(power_subblocks, key=lambda item: item[1])
 
-    print(tot_area, timing_info, tot_power)
-    print(max_area, max_power)
+    return [ (tot_area, timing_info, tot_power), (max_area, max_power) ]
 
+#def parse_all_reports(folders:list):
+#    for folder in folders:
+#        for config_id, config_name in naming_conv:
+#            parse_reports()
 
 #print(parse_area_report('UART/reports/1report_area.rpt'))
 #print(parse_timing_report('iscas85/reports/1report_timing.rpt'))
 #print(parse_power_report('NEWPOWER/UART/reports/1report_power.rpt'))
 
-parse_reports('itc99/b14', '1')
+parse_reports('cep/IIR', '1')
 
 
