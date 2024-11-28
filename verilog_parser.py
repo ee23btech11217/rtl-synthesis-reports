@@ -86,5 +86,9 @@ def parse_counts_netlist(filename):
 #            final_dict[key][i] = l[key]
 #    return final_dict
 
-print(json.dumps(parse_counts_netlist('UART/output/1output.v'), indent=4))
+print("2")
+print(json.dumps(parse_counts_netlist('iscas85/output/1output.v'), indent=4))
+print("8")
+print(json.dumps(parse_counts_netlist('iscas85/output/8output.v'), indent=4))
 
+print(parse_counts_netlist('iscas85/output/1output.v') == parse_counts_netlist('iscas85/output/8output.v'))
