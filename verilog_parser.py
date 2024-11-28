@@ -10,6 +10,7 @@ import json
 inst_regex = re.compile(r"^[\n\s]*([\w]+)[\n\s]+([\w\\\[\]]+)[\n\s]*\((.|\n)*?\);", re.MULTILINE)
 module_regex = re.compile(r"^module\s+(.+?)\(", re.MULTILINE)
 
+# get all module names in the verilog file
 def get_modules(filename):
     modules = []
     with open(filename, 'r') as f:
@@ -17,19 +18,36 @@ def get_modules(filename):
             modules.append(match[1].strip())
     return modules
 
-# replace a module with it's components in another module
-def flatten_module_count(module_flatten, module_replace, module_replace_dict):
-    if module_replace not in module_flatten:
-        return module_flatten, False
-    count = module_flatten.pop(module_replace)
-    for key, value in module_replace_dict:
-        if key not in module_flatten:
-            module_flatten[key] = 0
-        module_flatten[key] += count*value
-    return module_flatten, True
+# flatten a given hierarchial netlist count
+def flatten_netlist(hierarchy_dict):
+    def flatten_module(module_name, module_data):
+        if not isinstance(module_data, list):
+            return module_data
+        
+        is_leaf, contents = module_data
+        if is_leaf:
+            return contents
+        
+        flat_counts = {}
+        for submodule_name, count in contents.items():
+            # if not in hierarchy_dict, then this is a cell
+            # just add the value
+            if submodule_name not in hierarchy_dict:
+                flat_counts[submodule_name] = flat_counts.get(submodule_name, 0) + count
+                continue
+            
+            submodule_cells = flatten_module(submodule_name, hierarchy_dict[submodule_name])
+            
+            for cell, cell_count in submodule_cells.items():
+                flat_counts[cell] = flat_counts.get(cell, 0) + cell_count * count
+                
+        return flat_counts
 
-# treat every module seperately
-def read_output_netlist(filename):
+    top_module = list(hierarchy_dict.keys())[-1]
+    return flatten_module(top_module, hierarchy_dict[top_module])
+
+# parse counts of different cells in a netlist
+def parse_counts_netlist(filename):
     # get all verilog modules
     modules = get_modules(filename)
 
@@ -54,13 +72,8 @@ def read_output_netlist(filename):
             
             if module_name in modules:
                 module_cell_counts[curr_module][0] = False
-    
-    flat_modules = [ mcc for mcc in module_cell_counts if mcc[0] ]
-    hier_modules = [ mcc for mcc in module_cell_counts if mcc[1] ]
 
-    for hier_m in 
-
-    return module_cell_counts
+    return flatten_netlist(module_cell_counts)
 
 #def merge_dicts(list_of_dicts):
 #    N = len(list_of_dicts)
@@ -73,5 +86,5 @@ def read_output_netlist(filename):
 #            final_dict[key][i] = l[key]
 #    return final_dict
 
-print(json.dumps(read_output_netlist('UART/output/1output.v'), indent=4))
+print(json.dumps(parse_counts_netlist('UART/output/1output.v'), indent=4))
 
