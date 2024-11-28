@@ -248,6 +248,7 @@ def plot_barh(data, sfile):
     os.makedirs(os.path.dirname(sfile), exist_ok=True)
     data.sort(key=lambda tup: tup[1])
     plt.barh([_[0] for _ in data], [_[1] for _ in data], color="green", edgecolor='green')
+    plt.tight_layout()
     plt.savefig(sfile)
     plt.clf()
 
@@ -267,10 +268,6 @@ def analyze_benchmark_reports(benchmark_name:str):
             corner_results[naming_conv[corner]] = result[0]
         except Exception as e:
             print(f"Error processing corner {corner}: {e}")
-    
-    #print("\n\tLibrary Corner Details (Total Area, Timing Info, Total Power):")
-    #for corner, (area, timing, power) in corner_results.items():
-    #    print(f"\t{corner}: Area = {area:.2f}, Timing = {timing}, Power = {power:.6f}")
 
     area_plt = []
     timing_plt = []
@@ -279,11 +276,10 @@ def analyze_benchmark_reports(benchmark_name:str):
         area_plt.append((corner, area))
         timing_plt.append((corner, timing))
         power_plt.append((corner, power))
-        #print(f"\t{corner}: Area = {area:.2f}, Timing = {timing}, Power = {power:.6f}")
         
-    plot_barh(area_plt, f'figs/{benchmark_name}/{corner}/area.png')
-    plot_barh(timing_plt, f'figs/{benchmark_name}/{corner}/timing.png')
-    plot_barh(power_plt, f'figs/{benchmark_name}/{corner}/power.png')
+    plot_barh(area_plt, f'figs/{benchmark_name}/area.png')
+    plot_barh(timing_plt, f'figs/{benchmark_name}/timing.png')
+    plot_barh(power_plt, f'figs/{benchmark_name}/power.png')
 
     # 2. Comparison of area/timing/power by frequency
     print("\n\t2. Frequency Comparison:")
