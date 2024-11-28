@@ -289,9 +289,9 @@ def analyze_benchmark_reports(benchmark_name:str):
         timing_plt.append((corner, timing))
         power_plt.append((corner, power))
 
-    plot_barh(area_plt, f'figs/corner/{benchmark_name}/area.png', 'technology library', 'Area($\\mu m^2$)')
-    plot_barh(timing_plt, f'figs/corner/{benchmark_name}/timing.png', 'technology library', 'Timing(ps)')
-    plot_barh(power_plt, f'figs/corner/{benchmark_name}/power.png', 'technology library', 'Power(W)', 30)
+    plot_barh(area_plt, f'figs/corner/{benchmark_name}/area.png', 'Area($\\mu m^2$)', 'technology library')
+    plot_barh(timing_plt, f'figs/corner/{benchmark_name}/timing.png', 'Timing(ps)', 'technology library')
+    plot_barh(power_plt, f'figs/corner/{benchmark_name}/power.png', 'Power(W)', 'technology library', 30)
 
     print(gen_latex_code_figure(f'figs/corner/{benchmark_name}/area.png', f'Area comparision for {benchmark}'))
     print(gen_latex_code_figure(f'figs/corner/{benchmark_name}/timing.png', f'Area comparision for {benchmark}'))
@@ -322,19 +322,27 @@ def analyze_benchmark_reports(benchmark_name:str):
             print(f"\t{corner}: Area = {area:.2f}, Timing = {timing}, Power = {power:.6f}")
     
     # 3 & 4. Identify most power-consuming and largest area sub-blocks
-    print("\n\t3 & 4. Sub-block Analysis:")
+    print("\n\t\\subsection{Sub-block Analysis}")
+    print(f"""\\begin{{table}}[H]
+    \\centering
+    \\begin{{tabular}}{{|c|c|c|}}
+        \\hline
+        Technology Library & Highest Area Sub-block & Highest Power Sub-block \\\\ 
+    """)
     for corner in library_corners:
         try:
             result = parse_reports(f'{benchmark_name}', corner)
             max_area_subblock = result[1][0]
             max_power_subblock = result[1][1]
             
-            print(f"\n\tCorner {naming_conv[corner]}:")
-            print(f"\tHighest Area Sub-block: {max_area_subblock[0]}, Area = {max_area_subblock[2]:.2f}")
-            print(f"\tHighest Power Sub-block: {max_power_subblock[0]}, Power = {max_power_subblock[1]:.2f}")
+            print(f"\t {naming_conv[corner]} & {max_area_subblock[0]}, Area = {max_area_subblock[2]:.2f} $\mu m^2$ & {max_power_subblock[0]}, Power = {1e3*max_power_subblock[1]:.3g} mW \\\\")
+            print('     \\hline')
         except Exception as e:
             print(f"Error processing corner {corner}: {e}")
-
+    print(f"""       \\end{{tabular}}
+    \\caption{{Analysis of the {benchmark_name} benchmark}}
+    \\label{{tab:sub-block-analysis-{fixed_bname}}}
+\\end{{table}}""")
 
 # Benchmarks to analyze
 benchmarks = ['UART', 'itc99/b14', 'itc99/b15', 'iscas85', 'cep/IIR', 'cep/FIR', 'custom/FADD_Combinational', 'custom/FADD_Pipelined']
